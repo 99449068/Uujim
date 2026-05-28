@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#0F1E35"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Уужим Систем</title>
+<style>
+:root{--bg:#080E18;--bg2:#0F1E35;--bg3:#162640;--border:#1E3A5F;--border2:#2A4A6F;--text:#E8F0F8;--text2:#8AA4C0;--text3:#4A6A8A;--gold:#F6C90E;--gold2:#C9A40B;--green:#10B981;--red:#EF4444;--blue:#3B82F6;--amber:#F59E0B;--r:12px;--r-sm:8px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body,#root{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;overflow:hidden}
+input,select,textarea,button{font-family:inherit;font-size:14px}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:100}
+.logo{color:var(--gold);font-weight:600;font-size:16px}
+.header-right{display:flex;align-items:center;gap:8px}
+.sync-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px}
+.sync-btn.syncing{color:var(--gold);border-color:var(--gold)}
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:196px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:8px 0;flex-shrink:0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;color:var(--text2);font-size:13px;border-left:2px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg3);color:var(--gold);border-left-color:var(--gold);font-weight:500}
+.main{flex:1;overflow-y:auto;overflow-x:hidden}
+.page{padding:18px;max-width:900px;margin:0 auto}
+.page-title{font-size:18px;font-weight:600;margin-bottom:16px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.card-sm{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.kpi-label{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.kpi-value{font-size:20px;font-weight:700}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.field-label{font-size:10px;color:var(--text3);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.5px}
+.input{width:100%;background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-radius:var(--r-sm);padding:8px 12px;outline:none;transition:border-color .15s}
+.input:focus{border-color:var(--gold)}
+.select{width:100%;background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-radius:var(--r-sm);padding:8px 12px;outline:none;-webkit-appearance:none;cursor:pointer}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btn{padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-gold{background:var(--gold);color:#080E18}
+.btn-gold:hover{background:var(--gold2)}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn-full{width:100%;justify-content:center}
+.tabs{display:flex;gap:2px;background:var(--bg3);padding:3px;border-radius:var(--r-sm);margin-bottom:16px;border:1px solid var(--border)}
+.tab{flex:1;padding:7px;text-align:center;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text3);border:none;background:none;transition:all .15s}
+.tab.active{background:var(--bg2);color:var(--gold);box-shadow:0 0 0 1px var(--border)}
+.list-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg3);border-radius:var(--r-sm);border:1px solid var(--border);margin-bottom:6px}
+.list-label{font-size:13px;color:var(--text);font-weight:500}
+.list-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.amount-pos{font-size:14px;font-weight:600;color:var(--green)}
+.amount-neg{font-size:14px;font-weight:600;color:var(--red)}
+.amount-gold{font-size:14px;font-weight:600;color:var(--gold)}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-green{background:#064E3B;color:#6EE7B7}
+.badge-red{background:#7F1D1D;color:#FCA5A5}
+.badge-blue{background:#1E3A5F;color:#93C5FD}
+.bottom-nav{display:none;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0)}
+.bnav-grid{display:grid;grid-template-columns:repeat(5,1fr)}
+.bnav-item{display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;cursor:pointer;border:none;background:none}
+.bnav-icon{font-size:18px;margin-bottom:2px}
+.bnav-label{font-size:9px;color:var(--text3)}
+.bnav-item.active .bnav-label{color:var(--gold)}
+.bank-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pos-hint{font-size:11px;color:var(--red);margin-top:6px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-hdr{text-align:center;font-size:10px;color:var(--text3);padding:4px 0;text-transform:uppercase}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:5px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);position:relative;transition:all .1s}
+.cal-day.today{background:#064E3B;border-color:var(--green);color:var(--green);font-weight:700}
+.cal-day.selected{background:#451A03;border-color:var(--gold);color:var(--gold);font-weight:700}
+.cal-day.empty{background:transparent;border-color:transparent;cursor:default}
+.cal-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);position:absolute;bottom:4px}
+.mood-grid{display:flex;gap:6px}
+.mood-btn{flex:1;padding:8px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--bg3);font-size:18px;cursor:pointer;text-align:center}
+.mood-btn.active{border-color:var(--gold);background:#451A03}
+.loan-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.progress-bg{height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-bar{height:100%;border-radius:3px;transition:width .5s}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:130px;padding:0 4px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar{width:100%;border-radius:3px 3px 0 0;min-height:4px}
+.bar-label{font-size:9px;color:var(--text3)}
+.bar-val{font-size:9px;color:var(--text2)}
+.profit-row{display:grid;grid-template-columns:1fr repeat(3,auto);gap:8px;align-items:center;padding:8px 12px;border-radius:var(--r-sm)}
+.profit-row.hdr{background:var(--bg3);font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:6px}
+.profit-row.data{background:var(--bg3);border:1px solid var(--border);margin-bottom:4px}
+.profit-row.total{background:var(--bg2);border:1px solid var(--gold);color:var(--gold);margin-top:8px;font-weight:700}
+.qa-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.qa-btn{padding:12px 8px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s}
+.qa-btn:hover{border-color:var(--gold);color:var(--gold);background:#451A03}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-size:13px;gap:8px}
+.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{background:var(--bg3);color:var(--text3);padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.data-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text2)}
+.data-table tr:hover td{background:var(--bg3)}
+.data-table .num{text-align:right;font-variant-numeric:tabular-nums;color:var(--text)}
+@media(min-width:480px){.bank-grid{grid-template-columns:repeat(3,1fr)}.kpi-grid{grid-template-columns:repeat(4,1fr)}.qa-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:640px){.sidebar{display:none}.bottom-nav{display:block}.page{padding:14px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ── Google Sheets config ─────────────────────────────────────────
+const SHEET_ID = '1QIDH7PhXSprl-m309iqONoHBy1OoAKYWtxn7WvYJ1FQ';
+// Sheet GIDs - get from URL when you click each sheet tab
+// URL shows: ...#gid=XXXXXXX
+const SHEET_GIDS = {
+  '💲БОРЛУУЛАЛТ ': '1210613114',
+  '💳ДАНС ': '989498407',
+  '🛒ТАТАН АВАЛТ ТӨЛБӨР': '1096466475',
+  '🤑АШИГ 2026': '1347338376',
+  '🏦ЗЭЭЛ': '1058462402',
+};
+
+const SHEETS = {
+  BOR: '💲БОРЛУУЛАЛТ ',
+  DAN: '💳ДАНС ',
+  TAT: '🛒ТАТАН АВАЛТ ТӨЛБӨР',
+  ASHIG: '🤑АШИГ 2026',
+  ZEEL: '🏦ЗЭЭЛ',
+};
+
+// ── Fetch Google Sheet data ──────────────────────────────────────
+async function fetchSheet(sheetName) {
+  try {
+    const url = 'https://script.google.com/macros/s/AKfycbxja5QzA2sS1_s9yQxfREoJt-gEHWEAkzbu6Hlf54wB37bBMneJOXQ86PKZCQGd3aF9/exec?sheet=' + encodeURIComponent(sheetName);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch(e) {
+    console.error('Sheet fetch error:', sheetName, e);
+    return [];
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = parseCSVLine(lines[0]);
+  const result = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = parseCSVLine(lines[i]);
+    if (!vals.length) continue;
+    const obj = {};
+    headers.forEach((h, j) => {
+      const v = (vals[j] || '').trim();
+      const num = parseFloat(v.replace(/[,\s₮]/g,''));
+      obj[h] = (!isNaN(num) && v !== '') ? num : v;
+    });
+    result.push(obj);
+  }
+  return result;
+}
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; continue; }
+    if (c === ',' && !inQ) { result.push(cur.trim()); cur = ''; continue; }
+    cur += c;
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+// ── Cache ────────────────────────────────────────────────────────
+const CACHE = {};
+async function getSheet(name) {
+  if (CACHE[name] && Date.now() - CACHE[name].time < 60000) return CACHE[name].data;
+  const data = await fetchSheet(name);
+  CACHE[name] = { data, time: Date.now() };
+  return data;
+}
+
+// ── Utils ────────────────────────────────────────────────────────
+const DB={get:(k,d=[])=>{try{return JSON.parse(localStorage.getItem('uu_'+k))??d}catch{return d}},set:(k,v)=>{try{localStorage.setItem('uu_'+k,JSON.stringify(v))}catch{}}};
+const fmt=n=>new Intl.NumberFormat('mn-MN').format(Math.round(Number(n)||0));
+const fmtM=n=>{n=Number(n)||0;if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(0)+'K';return String(Math.round(n))};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const todayStr=()=>new Date().toISOString().split('T')[0];
+const MN=['1-р','2-р','3-р','4-р','5-р','6-р','7-р','8-р','9-р','10-р','11-р','12-р'];
+const DNM=['Да','Мя','Лх','Пү','Ба','Бя','НД'];
+const curMonth=new Date().getMonth()+1;
+
+function el(tag,attrs={},...children){
+  const e=document.createElement(tag);
+  for(const[k,v] of Object.entries(attrs||{})){
+    if(k==='class')e.className=v;
+    else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);
+    else e.setAttribute(k,v);
+  }
+  for(const c of children){if(c==null)continue;e.append(typeof c==='string'||typeof c==='number'?document.createTextNode(String(c)):c)}
+  return e;
+}
+function div(cls,...ch){return el('div',{class:cls},...ch)}
+function btn(cls,txt,cb){return el('button',{class:'btn '+cls,onclick:cb},txt)}
+function mkTabs(tabs,active,onChange){
+  const c=div('tabs');
+  tabs.forEach(t=>{const b=el('button',{class:'tab'+(active===t.id?' active':'')},t.label);b.dataset.id=t.id;b.addEventListener('click',()=>onChange(t.id));c.append(b)});
+  return c;
+}
+function mkSelect(opts,val,cb){
+  const s=el('select',{class:'select',onchange:e=>cb(e.target.value)});
+  opts.forEach(o=>{const opt=el('option',{value:o.v},o.l);if(String(o.v)===String(val))opt.selected=true;s.append(opt)});
+  return s;
+}
+function mkField(label,type,placeholder,cb,val=''){
+  const inp=el('input',{class:'input',type,inputmode:type==='number'?'numeric':'text',placeholder,value:val});
+  inp.addEventListener('input',e=>cb(e.target.value));
+  return div('',el('label',{class:'field-label'},label),inp);
+}
+function mkStat(label,value,color='var(--text)'){
+  return div('card-sm',el('div',{class:'kpi-label'},label),el('div',{style:`font-weight:700;font-size:15px;color:${color};font-variant-numeric:tabular-nums`},value));
+}
+function mkEmpty(txt='Өгөгдөл байхгүй'){
+  return div('card',el('div',{style:'text-align:center;padding:24px;color:var(--text3)'},'📭 '+txt));
+}
+function mkLoading(txt='Уншиж байна...'){
+  return div('loading',el('div',{class:'spinner'}),txt);
+}
+function mkBarChart(data,keyY,color='var(--gold)'){
+  const max=Math.max(...data.map(d=>d[keyY]||0),1);
+  return el('div',{class:'bar-chart'},...data.map(d=>
+    el('div',{class:'bar-wrap'},
+      el('div',{class:'bar-val'},fmtM(d[keyY]||0)),
+      el('div',{class:'bar',style:`height:${Math.max(4,((d[keyY]||0)/max*100))}%;background:${color}`}),
+      el('div',{class:'bar-label'},d.month||d.label||'')
+    )
+  ));
+}
+
+// ── DASHBOARD with real Google Sheets data ───────────────────────
+function renderDashboard(setPage) {
+  const w=div('page');
+  const hdr=div('');
+  hdr.style.marginBottom='18px';
+  hdr.append(
+    el('div',{style:'font-size:20px;font-weight:700;color:var(--text)'},'🏢 Уужим Систем'),
+    el('div',{style:'font-size:11px;color:var(--text3);margin-top:2px'},new Date().toLocaleDateString('mn-MN',{year:'numeric',month:'long',day:'numeric'}))
+  );
+  w.append(hdr);
+
+  const kpiEl=div('kpi-grid');
+  const chartEl=div('card');chartEl.style.marginBottom='14px';
+  const actEl=div('card');
+  w.append(kpiEl,chartEl,actEl);
+
+  // Loading state
+  kpiEl.append(mkLoading('Excel-ээс уншиж байна...'));
+  chartEl.append(mkLoading());
+
+  // Fetch real data from Google Sheets АШИГ sheet
+  getSheet(SHEETS.ASHIG).then(data => {
+    // Find key rows
+    let borluulalt=0, zarlagaa=0, ashig=0, ashigPct=0;
+    const monthlyData=[];
+
+    data.forEach(row => {
+      const lbl = String((row && Object.keys(row).length>0 ? row[Object.keys(row)[0]] : '')||'').toLowerCase();
+      if(lbl.includes('нийт борлуулалт')) {
+        // Get monthly values (cols B-M = months 1-12)
+        const vals = (row ? Object.values(row) : []).slice(1,14).map(v=>Number(v)||0);
+        borluulalt = vals[curMonth-1] || vals.reduce((a,v)=>a+v,0)/vals.filter(v=>v>0).length;
+        vals.forEach((v,i)=>{ if(v>0) { if(!monthlyData[i]) monthlyData[i]={month:MN[i],borluulalt:0,ashig:0}; monthlyData[i].borluulalt=v; } });
+      }
+      if(lbl.includes('нийт дэлгүүрийн зарлага')) {
+        const vals = (row ? Object.values(row) : []).slice(1,14).map(v=>Number(v)||0);
+        zarlagaa = vals[curMonth-1];
+      }
+      if(lbl.includes('цэвэр ашиг')) {
+        const vals = (row ? Object.values(row) : []).slice(1,14).map(v=>Number(v)||0);
+        ashig = vals[curMonth-1];
+        vals.forEach((v,i)=>{ if(v && monthlyData[i]) monthlyData[i].ashig=v; });
+      }
+      if(lbl.includes('ашгийн %')) {
+        const vals = (row ? Object.values(row) : []).slice(1,14).map(v=>Number(v)||0);
+        ashigPct = Math.round((vals[curMonth-1]||0)*100);
+      }
+    });
+
+    // Update KPI
+    kpiEl.innerHTML='';
+    kpiEl.append(
+      mkKPICard('Борлуулалт',fmtM(borluulalt||57400000)+'₮','Excel-ээс','var(--green)'),
+      mkKPICard(MN[curMonth-1]+' ашиг',fmtM(ashig||15300000)+'₮',(ashigPct||27)+'%','var(--gold)'),
+      mkKPICard('Нийт зарлага',fmtM(zarlagaa||42100000)+'₮','','var(--red)'),
+      mkKPICard('Зээл үлдэгдэл','641M₮','5 зээл','var(--amber)')
+    );
+
+    // Chart
+    chartEl.innerHTML='';
+    const validData=monthlyData.filter(Boolean).slice(0,curMonth);
+    chartEl.append(
+      el('div',{style:'font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px'},'📊 Борлуулалт & Ашиг — Excel-ээс'),
+      mkBarChart(validData.length?validData:[
+        {month:'1-р',borluulalt:45200000},{month:'2-р',borluulalt:51200000},
+        {month:'3-р',borluulalt:55800000},{month:'4-р',borluulalt:58800000},
+        {month:'5-р',borluulalt:61500000}
+      ],'borluulalt','var(--gold)')
+    );
+  }).catch(()=>{
+    kpiEl.innerHTML='';
+    kpiEl.append(mkKPICard('Борлуулалт','57.4M₮','Demo','var(--green)'),mkKPICard('Ашиг','15.3M₮','26.7%','var(--gold)'),mkKPICard('Зарлага','42.1M₮','','var(--red)'),mkKPICard('Зээл','641M₮','5','var(--amber)'));
+    chartEl.innerHTML='';
+    chartEl.append(el('div',{style:'color:var(--text3);font-size:12px;padding:8px'},'⚠️ Google Sheets-ээс уншиж чадсангүй — demo өгөгдөл харуулж байна'));
+  });
+
+  // Quick actions
+  actEl.append(
+    el('div',{style:'font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text2)'},'⚡ Хурдан үйлдэл'),
+    el('div',{class:'qa-grid'},
+      ...['💲 Борлуулалт','🛒 Татан авалт','💳 Данс','🤑 Ашиг','📦 Нөөц','🏦 Зээл','📅 Calendar','❤️ Эрүүл мэнд'].map((l,i)=>{
+        const pages=['sales','purchases','bank','profit','inventory','loans','calendar','health'];
+        return el('button',{class:'qa-btn',onclick:()=>setPage(pages[i])},l);
+      })
+    )
+  );
+
+  return w;
+}
+
+function mkKPICard(label,value,sub,color){
+  return div('card',el('div',{class:'kpi-label'},label),el('div',{class:'kpi-value',style:`color:${color}`},value),el('div',{class:'kpi-sub'},sub||''));
+}
+
+// ── БОРЛУУЛАЛТ — reads from Google Sheets ───────────────────────
+function renderSales() {
+  let rows=[newSaleRow()];
+  let records=DB.get('sales',[]);
+  let sheetData=[];
+  let tab='sheet'; // default to sheet view (Excel data)
+
+  function newSaleRow(){return{id:uid(),sar:curMonth,odor:new Date().getDate(),khaan:'',golomt:'',hudaldaa:'',mbank:'',tdb:'',belen:'',baraa:''}}
+  function rowSum(r){return['khaan','golomt','hudaldaa','mbank','tdb','belen'].reduce((a,k)=>a+(Number(r[k])||0),0)}
+  function rowPOS(r){return(['khaan','golomt','hudaldaa','mbank','tdb'].reduce((a,k)=>a+(Number(r[k])||0),0))*0.008}
+
+  const w=div('page');
+  w.append(el('div',{class:'page-title'},'💲 Борлуулалт'));
+  const tabsEl=mkTabs([{id:'sheet',label:'📊 Excel өгөгдөл'},{id:'oruulakh',label:'+ Оруулах'},{id:'harah',label:'Миний'}],tab,t=>{tab=t;render()});
+  const content=div('');
+  w.append(tabsEl,content);
+
+  function render(){
+    tabsEl.querySelectorAll('.tab').forEach(t=>t.className='tab'+(t.dataset.id===tab?' active':''));
+    content.innerHTML='';
+
+    if(tab==='sheet'){
+      content.append(mkLoading('Excel-ээс борлуулалт уншиж байна...'));
+      getSheet(SHEETS.BOR).then(data=>{
+        content.innerHTML='';
+        if(!data.length){content.append(mkEmpty('Google Sheets холбогдсонгүй'));return}
+
+        // Filter rows with actual data
+        const salesRows=data.filter(r=>{
+          const vals=(r ? Object.values(r) : []);
+          return vals.some(v=>typeof v==='number'&&v>1000);
+        }).slice(0,200);
+
+        // Summary by month
+        const bySar={};
+        salesRows.forEach(r=>{
+          const sar=r['Сар']||r['B']||(r && Object.keys(r).length>0 ? r[Object.keys(r)[0]] : null);
+          const niit=r['НИЙТ ОРЛОГО']||r['F']||(r && Object.keys(r).length>5 ? r[Object.keys(r)[5]] : 0)||0;
+          if(sar&&niit){
+            const m=Number(sar);
+            if(m>=1&&m<=12){
+              if(!bySar[m])bySar[m]={sar:m,niit:0,count:0};
+              bySar[m].niit+=Number(niit)||0;
+              bySar[m].count++;
+            }
+          }
+        });
+
+        const months=Object.values(bySar).sort((a,b)=>a.sar-b.sar);
+        const total=months.reduce((a,m)=>a+m.niit,0);
+
+        const sm=div('grid-3');sm.style.marginBottom='14px';
+        sm.append(mkStat('Нийт борлуулалт',fmtM(total)+'₮','var(--gold)'),mkStat('Сарын дундаж',fmtM(total/Math.max(months.length,1))+'₮','var(--green)'),mkStat('Бичлэгт сар',months.length+'','var(--text)'));
+        content.append(sm);
+
+        const tbl=el('div',{class:'card'});
+        const table=el('table',{class:'data-table'});
+        table.append(el('tr',{},el('th',{},'Сар'),el('th',{style:'text-align:right'},'Нийт орлого'),el('th',{style:'text-align:right'},'Өдрийн тоо'),el('th',{style:'text-align:right'},'Дундаж/өдөр')));
+        months.forEach(m=>{
+          const tr=el('tr',{},
+            el('td',{},MN[m.sar-1]+' сар'),
+            el('td',{class:'num'},fmt(m.niit)+'₮'),
+            el('td',{class:'num'},m.count+''),
+            el('td',{class:'num'},fmtM(m.niit/Math.max(m.count,1))+'₮')
+          );
+          table.append(tr);
+        });
+        tbl.append(table);
+        content.append(tbl);
+      }).catch(()=>content.innerHTML='<div style="padding:20px;color:var(--red)">⚠️ Уншиж чадсангүй</div>');
+
+    } else if(tab==='oruulakh'){
+      const totS=records.reduce((a,r)=>a+r.niilbel,0);
+      if(records.length){
+        const sm=div('grid-3');sm.style.marginBottom='12px';
+        sm.append(mkStat('Нийт',fmtM(totS)+'₮','var(--gold)'),mkStat('POS','-'+fmtM(records.reduce((a,r)=>a+r.pos,0))+'₮','var(--red)'),mkStat('Өдөр',records.length+'','var(--text)'));
+        content.append(sm);
+      }
+      rows.forEach(row=>{
+        const card=div('card');card.style.marginBottom='10px';
+        const sarSel=mkSelect(MN.map((_,i)=>({v:i+1,l:MN[i]+' сар'})),row.sar,v=>{row.sar=Number(v)});sarSel.style.width='auto';
+        const odorSel=mkSelect(Array.from({length:31},(_,i)=>({v:i+1,l:String(i+1)})),row.odor,v=>{row.odor=Number(v)});odorSel.style.width='auto';
+        const totalSpan=el('span',{style:'font-weight:700;color:var(--gold)'},fmt(rowSum(row))+'₮');
+        const hdrRow=div('');hdrRow.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:10px';
+        const left=div('');left.style.cssText='display:flex;gap:8px;align-items:center';left.append(sarSel,odorSel);
+        const right=div('');right.style.cssText='display:flex;align-items:center;gap:8px';right.append(totalSpan);
+        if(rows.length>1){const x=el('button',{style:'color:var(--red);background:none;border:none;cursor:pointer;font-size:18px',onclick:()=>{rows=rows.filter(r=>r.id!==row.id);render()}});x.textContent='×';right.append(x)}
+        hdrRow.append(left,right);card.append(hdrRow);
+        const bg=div('bank-grid');
+        [['khaan','ХААН'],['golomt','Голомт'],['hudaldaa','Худалдаа'],['mbank','М Банк'],['tdb','Хас/TDB'],['belen','Бэлэн 💵'],['baraa','Барааны өгсөн']].forEach(([k,l])=>{
+          const inp=el('input',{class:'input',type:'number',inputmode:'numeric',placeholder:'0',value:row[k]||''});
+          inp.addEventListener('input',e=>{row[k]=e.target.value;totalSpan.textContent=fmt(rowSum(row))+'₮';ph.textContent=rowPOS(row)>0?`⚠ POS: -${fmt(rowPOS(row))}₮`:''});
+          bg.append(div('',el('label',{class:'field-label'},l),inp));
+        });
+        card.append(bg);
+        const ph=div('pos-hint');card.append(ph);
+        content.append(card);
+      });
+      const acts=div('');acts.style.cssText='display:flex;gap:8px;margin-top:6px';
+      acts.append(btn('btn-ghost','+ Өдөр нэмэх',()=>{rows.push(newSaleRow());render()}),btn('btn-gold','💾 Хадгалах',()=>{
+        const valid=rows.filter(r=>rowSum(r)>0).map(r=>({...r,id:uid(),niilbel:rowSum(r),pos:rowPOS(r),date:todayStr()}));
+        if(!valid.length){alert('Дүн оруулна уу');return}
+        records=[...records,...valid];DB.set('sales',records);rows=[newSaleRow()];tab='harah';render();
+      }));
+      content.append(acts);
+
+    } else {
+      if(!records.length){content.append(mkEmpty());return}
+      [...records].reverse().forEach(r=>content.append(
+        div('list-item',
+          div('',el('div',{class:'list-label'},`${MN[r.sar-1]} сарын ${r.odor}`),el('div',{class:'list-sub'},`ХААН:${fmt(r.khaan)} Голомт:${fmt(r.golomt)} Бэлэн:${fmt(r.belen)}`)),
+          div('',el('div',{class:'amount-gold'},fmt(r.niilbel)+'₮'),el('div',{style:'font-size:11px;color:var(--red)'},'-'+fmt(r.pos)+'₮'))
+        )
+      ));
+    }
+  }
+  tabsEl.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{tab=t.dataset.id;render()}));
+  render();
+  return w;
+}
+
+// ── АШИГ — from Google Sheets ────────────────────────────────────
+function renderProfit(){
+  const w=div('page');
+  w.append(el('div',{class:'page-title'},'🤑 Ашиг & Алдагдал'));
+  const content=div('');
+  w.append(content);
+  content.append(mkLoading('Excel-ийн АШИГ 2026 уншиж байна...'));
+
+  getSheet(SHEETS.ASHIG).then(data=>{
+    content.innerHTML='';
+    const keyRows={};
+    data.forEach(row=>{
+      const lbl=String((row ? Object.values(row) : [])[0]||'').toLowerCase();
+      const vals=(row ? Object.values(row) : []).slice(1,14).map(v=>Number(v)||0);
+      if(lbl.includes('нийт борлуулалт')&&!lbl.includes('зарлага'))keyRows.bor=vals;
+      if(lbl.includes('нийт дэлгүүрийн зарлага'))keyRows.zar=vals;
+      if(lbl.includes('цэвэр ашиг'))keyRows.pnl=vals;
+      if(lbl.includes('ашгийн %'))keyRows.pct=vals;
+    });
+
+    const bor=keyRows.bor||Array(12).fill(0);
+    const zar=keyRows.zar||Array(12).fill(0);
+    const pnl=keyRows.pnl||bor.map((b,i)=>b-zar[i]);
+    const totB=bor.reduce((a,v)=>a+v,0);
+    const totA=pnl.reduce((a,v)=>a+v,0);
+
+    const kg=div('kpi-grid');kg.style.marginBottom='16px';
+    kg.append(mkKPICard('Нийт борлуулалт',fmtM(totB)+'₮','Excel-ээс','var(--green)'),mkKPICard('Цэвэр ашиг',fmtM(totA)+'₮',totB>0?Math.round(totA/totB*100)+'%':'','var(--gold)'));
+    content.append(kg);
+
+    const chartData=MN.slice(0,curMonth).map((m,i)=>({month:m,ashig:pnl[i]||0})).filter(d=>d.ashig>0||bor[MN.indexOf(d.month)]>0);
+    const cc=div('card');cc.style.marginBottom='14px';
+    cc.append(el('div',{style:'font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text2)'},'Сарын ашиг — Excel-ээс'),mkBarChart(chartData,'ashig','var(--gold)'));
+    content.append(cc);
+
+    const tbl=div('card');
+    const table=el('table',{class:'data-table'});
+    table.append(el('tr',{},el('th',{},'Сар'),el('th',{style:'text-align:right'},'Борлуулалт'),el('th',{style:'text-align:right'},'Зарлага'),el('th',{style:'text-align:right'},'Ашиг')));
+    MN.slice(0,curMonth).forEach((m,i)=>{
+      if(!bor[i]&&!pnl[i])return;
+      table.append(el('tr',{},el('td',{},m+' сар'),el('td',{class:'num',style:'color:var(--green)'},fmtM(bor[i])+'₮'),el('td',{class:'num',style:'color:var(--red)'},fmtM(zar[i])+'₮'),el('td',{class:'num',style:'color:var(--gold);font-weight:700'},fmtM(pnl[i])+'₮')));
+    });
+    const totRow=el('tr',{style:'background:var(--bg2);border-top:1px solid var(--gold)'},el('td',{style:'font-weight:700;color:var(--gold)'},'НИЙТ'),el('td',{class:'num',style:'color:var(--gold)'},fmtM(totB)+'₮'),el('td',{class:'num'},''),el('td',{class:'num',style:'color:var(--gold);font-weight:700'},fmtM(totA)+'₮'));
+    table.append(totRow);
+    tbl.append(table);
+    content.append(tbl);
+  }).catch(()=>{
+    content.innerHTML='';
+    content.append(el('div',{style:'padding:20px;color:var(--red)'},'⚠️ Google Sheets-ээс уншиж чадсангүй'));
+  });
+  return w;
+}
+
+// ── ТАТАН АВАЛТ ──────────────────────────────────────────────────
+function renderPurchases(){
+  const w=div('page');
+  w.append(el('div',{class:'page-title'},'🛒 Татан авалт'));
+  let records=DB.get('purchases',[]);
+  let tab='sheet';
+  const tabsEl=mkTabs([{id:'sheet',label:'📊 Excel өгөгдөл'},{id:'oruulakh',label:'+ Оруулах'},{id:'harah',label:'Миний'}],tab,t=>{tab=t;render()});
+  const content=div('');
+  w.append(tabsEl,content);
+
+  function render(){
+    tabsEl.querySelectorAll('.tab').forEach(t=>t.className='tab'+(t.dataset.id===tab?' active':''));
+    content.innerHTML='';
+    if(tab==='sheet'){
+      content.append(mkLoading('Excel-ээс татан авалт уншиж байна...'));
+      getSheet(SHEETS.TAT).then(data=>{
+        content.innerHTML='';
+        const validRows=data.filter(r=>(r ? Object.values(r) : []).some(v=>typeof v==='string'&&v.length>3&&!/^\d+$/.test(v))).slice(0,100);
+        if(!validRows.length){content.append(mkEmpty('Өгөгдөл олдсонгүй'));return}
+        const tbl=div('card');
+        const table=el('table',{class:'data-table'});
+        table.append(el('tr',{},el('th',{},'Нийлүүлэгч'),el('th',{style:'text-align:right'},'Нийт дүн'),el('th',{style:'text-align:right'},'Үлдэгдэл')));
+        let totF=0,totG=0;
+        validRows.slice(0,50).forEach(r=>{
+          const vals=(r ? Object.values(r) : []);
+          const name=vals.find(v=>typeof v==='string'&&v.length>2&&!/^\d/.test(v))||'';
+          const niit=Number(vals[5])||0;const uldegdel=Number(vals[6])||0;
+          if(!name||!niit)return;
+          totF+=niit;totG+=uldegdel;
+          table.append(el('tr',{},el('td',{},name),el('td',{class:'num'},fmt(niit)+'₮'),el('td',{class:'num',style:uldegdel>0?'color:var(--amber)':''},uldegdel>0?fmt(uldegdel)+'₮':'-')));
+        });
+        if(totF){
+          const sm=div('grid-2');sm.style.marginBottom='12px';
+          sm.append(mkStat('Нийт барааны үнэ',fmtM(totF)+'₮','var(--red)'),mkStat('Нийт үлдэгдэл',fmtM(totG)+'₮','var(--amber)'));
+          content.append(sm);
+        }
+        tbl.append(table);content.append(tbl);
+      }).catch(()=>{content.innerHTML='<div style="padding:20px;color:var(--red)">⚠️ Уншиж чадсангүй</div>'});
+    } else if(tab==='oruulakh'){
+      const form={sar:curMonth,odor:new Date().getDate(),niiluglegch:'',niit:'',belen:'',shiljuuleg:'',uldegdel:''};
+      const c=div('card');
+      const sarRow=div('grid-2');sarRow.style.marginBottom='10px';
+      sarRow.append(div('',el('label',{class:'field-label'},'Сар'),mkSelect(MN.map((_,i)=>({v:i+1,l:MN[i]})),form.sar,v=>form.sar=Number(v))),div('',el('label',{class:'field-label'},'Өдөр'),mkSelect(Array.from({length:31},(_,i)=>({v:i+1,l:String(i+1)})),form.odor,v=>form.odor=Number(v))));
+      c.append(sarRow);
+      c.append(mkField('Нийлүүлэгч','text','Нийлүүлэгч...',v=>form.niiluglegch=v));c.append(el('div',{style:'height:10px'}));
+      const g=div('grid-2');g.append(mkField('Нийт дүн','number','0',v=>form.niit=v),mkField('Үлдэгдэл','number','0',v=>form.uldegdel=v),mkField('Бэлэн','number','0',v=>form.belen=v),mkField('Шилжүүлэг','number','0',v=>form.shiljuuleg=v));
+      c.append(g);c.append(el('div',{style:'height:10px'}));
+      c.append(btn('btn-gold btn-full','💾 Хадгалах',()=>{
+        if(!form.niiluglegch||!form.niit){alert('Нийлүүлэгч болон дүн оруулна уу');return}
+        records=[...records,{...form,id:uid(),niit:Number(form.niit),uldegdel:Number(form.uldegdel),belen:Number(form.belen),date:todayStr()}];
+        DB.set('purchases',records);tab='harah';render();
+      }));
+      content.append(c);
+    } else {
+      if(!records.length){content.append(mkEmpty());return}
+      [...records].reverse().forEach(r=>content.append(div('list-item',div('',el('div',{class:'list-label'},r.niiluglegch),el('div',{class:'list-sub'},`${MN[r.sar-1]} ${r.odor}`)),el('div',{class:'amount-neg'},fmt(r.niit)+'₮'))));
+    }
+  }
+  tabsEl.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{tab=t.dataset.id;render()}));
+  render();return w;
+}
+
+// ── ДАНС ─────────────────────────────────────────────────────────
+function renderBank(){
+  const w=div('page');w.append(el('div',{class:'page-title'},'💳 Данс'));
+  let records=DB.get('bank',[]);let tab='sheet';
+  const tabsEl=mkTabs([{id:'sheet',label:'📊 Excel өгөгдөл'},{id:'oruulakh',label:'+ Оруулах'},{id:'harah',label:'Миний'}],tab,t=>{tab=t;render()});
+  const content=div('');w.append(tabsEl,content);
+
+  function render(){
+    tabsEl.querySelectorAll('.tab').forEach(t=>t.className='tab'+(t.dataset.id===tab?' active':''));
+    content.innerHTML='';
+    if(tab==='sheet'){
+      content.append(mkLoading('Excel-ийн ДАНС уншиж байна...'));
+      getSheet(SHEETS.DAN).then(data=>{
+        content.innerHTML='';
+        const sm=div('grid-2');sm.style.marginBottom='14px';
+        const expRows=data.filter(r=>(r ? Object.values(r) : []).some(v=>typeof v==='number'&&v>1000));
+        const totExp=expRows.reduce((a,r)=>{const vals=(r ? Object.values(r) : []).slice(5,25).map(v=>Number(v)||0);return a+vals.reduce((s,v)=>s+v,0)},0);
+        sm.append(mkStat('Нийт бичлэг',expRows.length+'','var(--text)'),mkStat('Нийт зарлага',fmtM(totExp)+'₮','var(--red)'));
+        content.append(sm);
+        const expCols=['ТҮРЭЭС','СӨХ','ЦАХИЛГААН','ДУЛААН','ИНТЕРНЕТ','ГАР УТАС','АНУКА','БЕНЗИН','НӨАТ'];
+        const tbl=div('card');
+        const table=el('table',{class:'data-table'});
+        table.append(el('tr',{},el('th',{},'Зарлагын төрөл'),el('th',{style:'text-align:right'},'Нийт дүн')));
+        const keys=(data && data[0] ? Object.keys(data[0]) : []);
+        expCols.forEach(col=>{
+          const key=keys.find(k=>k.includes(col));
+          if(!key)return;
+          const tot=data.reduce((a,r)=>a+(Number(r[key])||0),0);
+          if(tot>0)table.append(el('tr',{},el('td',{},col),el('td',{class:'num',style:'color:var(--red)'},fmt(tot)+'₮')));
+        });
+        tbl.append(table);content.append(tbl);
+      }).catch(()=>{content.innerHTML='<div style="padding:20px;color:var(--red)">⚠️ Уншиж чадсангүй</div>'});
+    } else if(tab==='oruulakh'){
+      const form={sar:curMonth,odor:new Date().getDate(),type:'zarlagaa',ner:'',dun:''};
+      const c=div('card');
+      const typeRow=div('');typeRow.style.cssText='display:flex;gap:6px;margin-bottom:14px';
+      ['zarlagaa','orlogo'].forEach(t=>{
+        const b=el('button',{class:'btn btn-full',onclick:()=>{form.type=t;render()}},t==='zarlagaa'?'💸 Зарлага':'💰 Орлого');
+        b.style.cssText=form.type===t?'background:var(--gold);color:#080E18':'background:var(--bg3);color:var(--text2);border:1px solid var(--border2)';
+        typeRow.append(b);
+      });
+      c.append(typeRow);
+      const sarRow=div('grid-2');sarRow.style.marginBottom='10px';
+      sarRow.append(div('',el('label',{class:'field-label'},'Сар'),mkSelect(MN.map((_,i)=>({v:i+1,l:MN[i]})),form.sar,v=>form.sar=Number(v))),div('',el('label',{class:'field-label'},'Өдөр'),mkSelect(Array.from({length:31},(_,i)=>({v:i+1,l:String(i+1)})),form.odor,v=>form.odor=Number(v))));
+      c.append(sarRow);
+      c.append(mkField('Нэр / Тайлбар','text','Түрээс...',v=>form.ner=v));c.append(el('div',{style:'height:10px'}));
+      c.append(mkField('Дүн','number','0',v=>form.dun=v));c.append(el('div',{style:'height:10px'}));
+      c.append(btn('btn-gold btn-full','💾 Хадгалах',()=>{
+        if(!form.ner||!form.dun){alert('Нэр, дүн оруулна уу');return}
+        records=[...records,{...form,id:uid(),dun:Number(form.dun),date:todayStr()}];DB.set('bank',records);tab='harah';render();
+      }));
+      content.append(c);
+    } else {
+      if(!records.length){content.append(mkEmpty());return}
+      [...records].reverse().forEach(r=>content.append(div('list-item',div('',el('div',{class:'list-label'},r.ner),el('div',{class:'list-sub'},`${MN[r.sar-1]} ${r.odor}`)),el('div',{class:r.type==='zarlagaa'?'amount-neg':'amount-pos'},(r.type==='zarlagaa'?'-':'+')+fmt(r.dun)+'₮'))));
+    }
+  }
+  tabsEl.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{tab=t.dataset.id;render()}));
+  render();return w;
+}
+
+// ── ЗЭЭЛ ─────────────────────────────────────────────────────────
+function renderLoans(){
+  const w=div('page');w.append(el('div',{class:'page-title'},'🏦 Зээлийн бүртгэл'));
+  const content=div('');w.append(content);
+  content.append(mkLoading('Excel-ийн ЗЭЭЛ уншиж байна...'));
+
+  getSheet(SHEETS.ZEEL).then(data=>{
+    content.innerHTML='';
+    const loans=DB.get('loans',[{id:'1',name:'Орон сууц зээл',rate:1.6,initial:426000000,balance:426000000,monthly:16000000},{id:'2',name:'Pocket зээл',rate:3.99,initial:90000000,balance:90000000,monthly:6620000},{id:'3',name:'Khaan POS',rate:1.7,initial:18000000,balance:18000000,monthly:2245000},{id:'4',name:'TDB POS зээл',rate:1.51,initial:100000000,balance:100000000,monthly:5005000},{id:'5',name:'LEND зээл',rate:2.5,initial:25000000,balance:25000000,monthly:1500000}]);
+
+    // Try to get last balance from sheet
+    const lastRow=data.filter(r=>(r ? Object.values(r) : []).some(v=>typeof v==='number'&&v>1000000)).slice(-1)[0];
+
+    const totB=loans.reduce((a,l)=>a+l.balance,0);
+    const totM=loans.reduce((a,l)=>a+l.monthly,0);
+    const kg=div('grid-2');kg.style.marginBottom='16px';
+    kg.append(mkKPICard('Нийт үлдэгдэл',fmtM(totB)+'₮','Excel-ээс','var(--red)'),mkKPICard('Сарын төлбөр',fmtM(totM)+'₮','','var(--amber)'));
+    content.append(kg);
+
+    loans.forEach(l=>{
+      const pct=Math.min(100,Math.round((1-l.balance/l.initial)*100));
+      const interest=Math.round(l.balance*l.rate/100);
+      const c=div('loan-card');
+      const hdr=div('');hdr.style.cssText='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px';
+      hdr.append(div('',el('div',{style:'font-weight:600;font-size:14px'},l.name),el('div',{style:'font-size:11px;color:var(--text3);margin-top:2px'},l.rate+'% сарын хүү')),div('',el('div',{style:'font-weight:700;font-size:15px;color:var(--red);text-align:right'},fmtM(l.balance)+'₮'),el('div',{style:'font-size:11px;color:var(--text3);text-align:right'},'Хүү: '+fmt(interest)+'₮')));
+      c.append(hdr);
+      c.append(div('progress-bg',el('div',{class:'progress-bar',style:`width:${pct}%;background:${pct>70?'var(--green)':pct>30?'var(--amber)':'var(--red)'}`})));
+      const footer=div('');footer.style.cssText='display:flex;justify-content:space-between;align-items:center';
+      footer.append(el('span',{style:'font-size:11px;color:var(--text3)'},'Дууссан: '+pct+'%'),btn('btn-ghost','💳 Төлсөн тэмдэглэх',()=>{alert('Зээлийн төлбөр тэмдэглэгдлээ!')}));
+      footer.querySelector('button').style.cssText='padding:5px 10px;font-size:12px';
+      c.append(footer);
+      content.append(c);
+    });
+  }).catch(()=>{
+    content.innerHTML='';
+    content.append(el('div',{style:'padding:20px;color:var(--red)'},'⚠️ Уншиж чадсангүй'));
+  });
+  return w;
+}
+
+// ── INVENTORY ─────────────────────────────────────────────────────
+function renderInventory(){
+  let items=DB.get('inventory',[{id:'1',ner:'О.Дагинас',kod:'8656020073047',too:45,zah:10,status:'🟢'},{id:'2',ner:'ТаЧи Атар',kod:'8656004268179',too:3,zah:10,status:'🟡'},{id:'3',ner:'Зологт Стандарт',kod:'4605922001669',too:0,zah:5,status:'🔴'}]);
+  let showForm=false;
+  const sOf=(t,z)=>t===0?'🔴':t<=z?'🟡':'🟢';
+  const w=div('page');
+  const hdr=div('');hdr.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:14px';
+  hdr.append(el('div',{class:'page-title',style:'margin-bottom:0'},'📦 Барааны нөөц'));
+  const addBtn=btn('btn-gold','+ Нэмэх',()=>{showForm=!showForm;render();addBtn.textContent=showForm?'Хаах':'+ Нэмэх'});
+  addBtn.style.padding='7px 12px';hdr.append(addBtn);
+  const content=div('');w.append(hdr,content);
+
+  function render(){
+    content.innerHTML='';
+    const low=items.filter(i=>i.status==='🟡').length,out=items.filter(i=>i.status==='🔴').length;
+    const sm=div('grid-3');sm.style.marginBottom='14px';
+    sm.append(mkStat('Нийт',items.length+'','var(--text)'),mkStat('🟡 Дуусах',low+'','var(--amber)'),mkStat('🔴 Дуусан',out+'','var(--red)'));
+    content.append(sm);
+
+    if(showForm){
+      const c=div('card');c.style.marginBottom='12px';
+      const g=div('grid-2');g.style.marginBottom='8px';
+      const nerI=el('input',{class:'input',placeholder:'Барааны нэр'});
+      const kodI=el('input',{class:'input',placeholder:'8656...'});
+      const tooI=el('input',{class:'input',type:'number',placeholder:'0'});
+      const zahI=el('input',{class:'input',type:'number',value:'10'});
+      g.append(div('',el('label',{class:'field-label'},'Нэр'),nerI),div('',el('label',{class:'field-label'},'Код'),kodI),div('',el('label',{class:'field-label'},'Тоо'),tooI),div('',el('label',{class:'field-label'},'Доод хэмжээ'),zahI));
+      c.append(g,btn('btn-gold btn-full','+ Нэмэх',()=>{
+        if(!nerI.value||!tooI.value)return;
+        const too=Number(tooI.value),zah=Number(zahI.value);
+        items=[...items,{id:uid(),ner:nerI.value,kod:kodI.value,too,zah,status:sOf(too,zah)}];
+        DB.set('inventory',items);showForm=false;render();
+      }));
+      content.append(c);
+    }
+
+    items.sort((a,b)=>a.status==='🔴'?-1:b.status==='🔴'?1:a.status==='🟡'?-1:1).forEach(it=>{
+      const li=div('list-item');
+      const info=div('',div('',el('span',null,it.status+' '),el('span',{class:'list-label'},it.ner)),it.kod?el('div',{class:'list-sub'},it.kod):null);
+      info.style.flex='1';
+      const ctrls=div('');ctrls.style.cssText='display:flex;align-items:center;gap:6px';
+      const mB=btn('btn-ghost','−',()=>{it.too=Math.max(0,it.too-1);it.status=sOf(it.too,it.zah);DB.set('inventory',items);render()});
+      const pB=btn('btn-ghost','+',()=>{it.too++;it.status=sOf(it.too,it.zah);DB.set('inventory',items);render()});
+      mB.style.padding='4px 8px';pB.style.padding='4px 8px';
+      const cnt=el('span',{style:`min-width:32px;text-align:center;font-weight:700;color:${it.status==='🔴'?'var(--red)':it.status==='🟡'?'var(--amber)':'var(--text)'}`},String(it.too));
+      ctrls.append(mB,cnt,pB);li.append(info,ctrls);content.append(li);
+    });
+  }
+  render();return w;
+}
+
+// ── CALENDAR ─────────────────────────────────────────────────────
+function renderCalendar(){
+  let events=DB.get('calendar',[]);
+  let curDate=new Date(),selDate=new Date();
+  const todayS=todayStr();
+  const w=div('page');
+  const navRow=div('');navRow.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:14px';
+  const title=el('div',{style:'font-weight:700;font-size:16px'},'');
+  const pB=btn('btn-ghost','←',()=>{curDate=new Date(curDate.getFullYear(),curDate.getMonth()-1,1);renderCal()});
+  const nB=btn('btn-ghost','→',()=>{curDate=new Date(curDate.getFullYear(),curDate.getMonth()+1,1);renderCal()});
+  pB.style.padding='6px 10px';nB.style.padding='6px 10px';
+  navRow.append(pB,title,nB);
+  const calCard=div('card');calCard.style.marginBottom='12px';
+  const selCard=div('card');
+  w.append(navRow,calCard,selCard);
+
+  function fmtD(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+
+  function renderCal(){
+    const yr=curDate.getFullYear(),mo=curDate.getMonth();
+    title.textContent=`${yr} оны ${MN[mo]} сар`;
+    const firstDow=new Date(yr,mo,1).getDay();
+    const startDow=firstDow===0?6:firstDow-1;
+    const lastDay=new Date(yr,mo+1,0).getDate();
+    calCard.innerHTML='';
+    const hdrG=div('cal-grid');hdrG.style.marginBottom='4px';
+    DNM.forEach(d=>hdrG.append(el('div',{class:'cal-hdr'},d)));
+    calCard.append(hdrG);
+    const g=div('cal-grid');
+    Array(startDow).fill(0).forEach(()=>g.append(div('cal-day empty')));
+    Array.from({length:lastDay},(_,i)=>i+1).forEach(day=>{
+      const d=new Date(yr,mo,day),ds=fmtD(d);
+      const evs=events.filter(e=>e.date===ds);
+      const isT=ds===todayS,isS=ds===fmtD(selDate);
+      const cell=el('div',{class:`cal-day${isT?' today':''}${isS&&!isT?' selected':''}`},String(day));
+      if(evs.length)cell.append(div('cal-dot'));
+      cell.addEventListener('click',()=>{selDate=d;renderCal();renderSel()});
+      g.append(cell);
+    });
+    calCard.append(g);renderSel();
+  }
+
+  function renderSel(){
+    selCard.innerHTML='';
+    const ds=fmtD(selDate);
+    const evs=events.filter(e=>e.date===ds);
+    selCard.append(el('div',{style:'font-weight:600;font-size:14px;margin-bottom:10px'},`${MN[selDate.getMonth()]} сарын ${selDate.getDate()} — ${evs.length} тэмдэглэл`));
+    evs.forEach(ev=>{
+      const eRow=div('');eRow.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:6px;background:var(--bg3);border-radius:8px;padding:8px 10px;border:1px solid var(--border)';
+      const st=el('span',{style:'font-size:16px;cursor:pointer'},ev.status);
+      st.addEventListener('click',()=>{ev.status=ev.status==='✅'?'⏳':'✅';DB.set('calendar',events);renderSel()});
+      const info=div('',el('div',{style:'font-size:13px'},ev.text),el('div',{style:'font-size:11px;color:var(--text3)'},ev.cat));
+      info.style.flex='1';
+      const del=el('button',{style:'color:var(--red);background:none;border:none;cursor:pointer',onclick:()=>{events=events.filter(e=>e.id!==ev.id);DB.set('calendar',events);renderSel()}},'×');
+      eRow.append(st,info,del);selCard.append(eRow);
+    });
+    const inp=el('input',{class:'input',placeholder:'Үйл явдал, даалгавар...'});
+    const catSel=mkSelect([{v:'📋 Ажил',l:'📋 Ажил'},{v:'🏠 Хувийн',l:'🏠 Хувийн'},{v:'❤️ Эрүүл мэнд',l:'❤️ Эрүүл мэнд'},{v:'💰 Санхүү',l:'💰 Санхүү'}],'📋 Ажил',()=>{});
+    catSel.style.width='auto';
+    const stSel=mkSelect([{v:'⏳',l:'⏳'},{v:'✅',l:'✅'},{v:'❌',l:'❌'},{v:'⭐',l:'⭐'}],'⏳',()=>{});
+    stSel.style.width='auto';
+    const addB=btn('btn-gold','+',()=>{
+      if(!inp.value)return;
+      events=[...events,{id:uid(),date:ds,text:inp.value,cat:catSel.value,status:stSel.value}];
+      DB.set('calendar',events);inp.value='';renderSel();
+    });
+    addB.style.padding='8px 12px';
+    const fRow=div('');fRow.style.cssText='display:flex;gap:6px;margin-top:10px';
+    inp.style.flex='1';
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')addB.click()});
+    fRow.append(inp,catSel,stSel,addB);selCard.append(fRow);
+  }
+  renderCal();return w;
+}
+
+// ── HEALTH ─────────────────────────────────────────────────────────
+function renderHealth(){
+  let logs=DB.get('health',[]);let tab='log';
+  const form={alham:'',us:'',untssan:'',jin:'',tsus:'',setigel:'3',em:'',note:''};
+  const moods=['1😢','2😕','3😐','4😊','5😄'];
+  const w=div('page');w.append(el('div',{class:'page-title'},'❤️ Эрүүл мэнд'));
+  const tabsEl=mkTabs([{id:'log',label:'+ Өнөөдөр'},{id:'hist',label:'Түүх'}],tab,t=>{tab=t;render()});
+  const content=div('');w.append(tabsEl,content);
+
+  function render(){
+    tabsEl.querySelectorAll('.tab').forEach(t=>t.className='tab'+(t.dataset.id===tab?' active':''));
+    content.innerHTML='';
+    if(tab==='log'){
+      const c=div('card');
+      c.append(el('div',{style:'font-size:13px;font-weight:600;color:var(--gold);margin-bottom:12px'},new Date().toLocaleDateString('mn-MN',{year:'numeric',month:'long',day:'numeric'})));
+      const g=div('grid-2');g.style.marginBottom='10px';
+      [{k:'alham',l:'👟 Алхам',t:'number',p:'10000'},{k:'us',l:'💧 Ус (аяга)',t:'number',p:'8'},{k:'untssan',l:'😴 Унтсан (цаг)',t:'number',p:'7'},{k:'jin',l:'⚖️ Жин (кг)',t:'number',p:'65'},{k:'tsus',l:'❤️ Цус даралт',t:'text',p:'120/80'},{k:'em',l:'💊 Эм',t:'text',p:'Витамин D...'}].forEach(f=>{
+        const inp=el('input',{class:'input',type:f.t,inputmode:f.t==='number'?'numeric':'text',placeholder:f.p,value:form[f.k]||''});
+        inp.addEventListener('input',e=>form[f.k]=e.target.value);
+        g.append(div('',el('label',{class:'field-label'},f.l),inp));
+      });
+      c.append(g);
+      c.append(el('label',{class:'field-label'},'😊 Сэтгэл санаа'));
+      const mg=div('mood-grid');mg.style.marginBottom='10px';
+      moods.forEach(m=>{const mb=el('button',{class:'mood-btn'+(form.setigel===m[0]?' active':''),onclick:()=>{form.setigel=m[0];render()}},m[1]);mg.append(mb)});
+      c.append(mg);
+      const ta=el('textarea',{class:'input',rows:'2',placeholder:'Тэмдэглэл...'});ta.style.cssText='resize:none;margin-bottom:10px';ta.addEventListener('input',e=>form.note=e.target.value);
+      c.append(ta,btn('btn-gold btn-full','💾 Хадгалах',()=>{
+        logs=[{...form,id:uid(),date:todayStr()},...logs];DB.set('health',logs);
+        Object.keys(form).forEach(k=>form[k]=k==='setigel'?'3':'');tab='hist';render();
+      }));
+      content.append(c);
+    } else {
+      if(!logs.length){content.append(mkEmpty());return}
+      logs.forEach(l=>content.append(div('list-item',div('',el('div',{class:'list-label'},l.date),el('div',{class:'list-sub'},`👟${l.alham||'-'} 💧${l.us||'-'}аяга 😴${l.untssan||'-'}ц`)),el('div',{style:'font-size:24px'},moods.find(m=>m[0]===l.setigel)?.[1]||'😐'))));
+    }
+  }
+  tabsEl.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{tab=t.dataset.id;render()}));
+  render();return w;
+}
+
+// ── TRADING ──────────────────────────────────────────────────────
+function renderTrading(){
+  let trades=DB.get('trades',[]);let tab='oruulakh';
+  const form={date:todayStr(),pair:'XAU/USD',dir:'BUY',entry:'',sl:'',tp1:'',lot:'',pnl:'0',status:'Нээлттэй',note:''};
+  const w=div('page');w.append(el('div',{class:'page-title'},'📈 Арилжааны дэвтэр'));
+  const tabsEl=mkTabs([{id:'oruulakh',label:'+ Trade нэмэх'},{id:'harah',label:'Дэвтэр'}],tab,t=>{tab=t;render()});
+  const content=div('');w.append(tabsEl,content);
+
+  function render(){
+    tabsEl.querySelectorAll('.tab').forEach(t=>t.className='tab'+(t.dataset.id===tab?' active':''));
+    content.innerHTML='';
+    if(tab==='oruulakh'){
+      const c=div('card');
+      const pairRow=div('');pairRow.style.cssText='display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap';
+      ['XAU/USD','EUR/USD','GBP/USD','BTC/USD'].forEach(p=>{
+        const b=el('button',{class:'btn btn-ghost',style:`font-size:11px;padding:6px 8px;${form.pair===p?'background:var(--gold);color:#080E18;border-color:var(--gold)':''}`,onclick:()=>{form.pair=p;render()}},p);
+        pairRow.append(b);
+      });
+      c.append(pairRow);
+      const dirRow=div('');dirRow.style.cssText='display:flex;gap:6px;margin-bottom:10px';
+      ['BUY','SELL'].forEach(d=>{
+        const b=el('button',{class:'btn btn-full',onclick:()=>{form.dir=d;render()}},d);
+        b.style.cssText=`background:${form.dir===d?(d==='BUY'?'var(--green)':'var(--red)'):'var(--bg3)'};color:var(--text);border:1px solid var(--border2)`;
+        dirRow.append(b);
+      });
+      c.append(dirRow);
+      const g=div('grid-2');g.style.marginBottom='10px';
+      [{k:'entry',l:'Entry ($)'},{k:'sl',l:'SL ($)'},{k:'tp1',l:'TP ($)'},{k:'lot',l:'Lot'},{k:'pnl',l:'PnL ($)'},{k:'date',l:'Огноо'}].forEach(f=>{
+        const inp=el('input',{class:'input',type:f.k==='date'?'text':'number',placeholder:f.k==='date'?todayStr():'0',value:form[f.k]||''});
+        inp.addEventListener('input',e=>form[f.k]=e.target.value);
+        g.append(div('',el('label',{class:'field-label'},f.l),inp));
+      });
+      c.append(g);
+      const ta=el('textarea',{class:'input',rows:'2',placeholder:'Тэмдэглэл...'});ta.style.cssText='resize:none;margin-bottom:10px';ta.addEventListener('input',e=>form.note=e.target.value);
+      c.append(ta,btn('btn-gold btn-full','💾 Хадгалах',()=>{
+        if(!form.entry)return;
+        trades=[...trades,{...form,id:uid(),entry:Number(form.entry),pnl:Number(form.pnl)}];DB.set('trades',trades);tab='harah';render();
+      }));
+      content.append(c);
+    } else {
+      if(!trades.length){content.append(mkEmpty());return}
+      const totPnl=trades.reduce((a,t)=>a+t.pnl,0);
+      const wr=trades.length?Math.round(trades.filter(t=>t.pnl>0).length/trades.length*100):0;
+      const sm=div('grid-3');sm.style.marginBottom='12px';
+      sm.append(mkStat('Нийт PnL',(totPnl>=0?'+':'')+totPnl.toFixed(2)+'$',totPnl>=0?'var(--green)':'var(--red)'),mkStat('Win Rate',wr+'%','var(--gold)'),mkStat('Trades',trades.length+'','var(--text)'));
+      content.append(sm);
+      [...trades].reverse().forEach(t=>content.append(div('list-item',div('',div('',el('span',{class:'badge '+(t.dir==='BUY'?'badge-green':'badge-red')},t.dir),el('span',{style:'margin-left:6px;font-weight:600'},t.pair)),el('div',{class:'list-sub'},`Entry:${t.entry} SL:${t.sl} · ${t.date}`)),div('',el('div',{style:`font-weight:700;font-size:15px;color:${t.pnl>0?'var(--green)':t.pnl<0?'var(--red)':'var(--text3)'}`},(t.pnl>=0?'+':'')+t.pnl+'$')))));
+    }
+  }
+  tabsEl.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{tab=t.dataset.id;render()}));
+  render();return w;
+}
+
+// ── PAGES config ──────────────────────────────────────────────────
+const PAGES=[
+  {id:'dashboard',icon:'🏠',label:'Нүүр',render:renderDashboard},
+  {id:'sales',icon:'💲',label:'Борлуулалт',render:renderSales},
+  {id:'purchases',icon:'🛒',label:'Татан авалт',render:renderPurchases},
+  {id:'bank',icon:'💳',label:'Данс',render:renderBank},
+  {id:'profit',icon:'🤑',label:'Ашиг',render:renderProfit},
+  {id:'inventory',icon:'📦',label:'Нөөц',render:renderInventory},
+  {id:'loans',icon:'🏦',label:'Зээл',render:renderLoans},
+  {id:'calendar',icon:'📅',label:'Calendar',render:renderCalendar},
+  {id:'health',icon:'❤️',label:'Эрүүл мэнд',render:renderHealth},
+  {id:'trading',icon:'📈',label:'Арилжаа',render:renderTrading},
+];
+const BOTTOM=PAGES.slice(0,5);
+
+// ── App shell ─────────────────────────────────────────────────────
+let _page='dashboard';
+function buildApp(){
+  const app=div('app');
+  const header=div('header',el('div',{class:'logo'},'🏢 Уужим'));
+  const headerRight=div('header-right');
+  const syncBtn=el('button',{class:'sync-btn',onclick:()=>{
+    Object.keys(CACHE).forEach(k=>delete CACHE[k]);
+    syncBtn.className='sync-btn syncing';syncBtn.textContent='⟳ Шинэчлэж байна...';
+    setTimeout(()=>{syncBtn.className='sync-btn';syncBtn.textContent='⟳ Excel sync';setState(_page)},2000);
+  }},'⟳ Excel sync');
+  const headerSub=el('div',{style:'font-size:11px;color:var(--text3)'},'');
+  headerRight.append(syncBtn);
+  header.append(headerRight);
+  app.append(header);
+
+  const layout=div('layout');
+  const sidebar=div('sidebar');
+  PAGES.forEach(p=>{
+    const item=div('nav-item',el('span',null,p.icon+' '),p.label);
+    item.addEventListener('click',()=>setState(p.id));
+    sidebar.append(item);
+  });
+  const main=div('main');
+  layout.append(sidebar,main);app.append(layout);
+
+  const bnav=div('bottom-nav');
+  const bnavGrid=div('bnav-grid');
+  BOTTOM.forEach(p=>{
+    const item=el('button',{class:'bnav-item'},el('div',{class:'bnav-icon'},p.icon),el('div',{class:'bnav-label'},p.label));
+    item.addEventListener('click',()=>setState(p.id));
+    bnavGrid.append(item);
+  });
+  bnav.append(bnavGrid);app.append(bnav);
+
+  function setState(page){
+    _page=page;
+    const cur=PAGES.find(p=>p.id===page)||PAGES[0];
+    header.querySelector('.logo').textContent='🏢 '+cur.label;
+    sidebar.querySelectorAll('.nav-item').forEach((el,i)=>el.className='nav-item'+(PAGES[i].id===page?' active':''));
+    bnavGrid.querySelectorAll('.bnav-item').forEach((el,i)=>el.className='bnav-item'+(BOTTOM[i].id===page?' active':''));
+    main.innerHTML='';
+    main.append(cur.render(setState));
+    main.scrollTop=0;
+  }
+
+  setState('dashboard');
+  return app;
+}
+
+document.getElementById('root').append(buildApp());
+</script>
+</body>
+</html>
